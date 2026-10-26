@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>root@host:~</title>
+  <style>
+    :root { color-scheme: dark; --green: #00ff26; --muted: #718077; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; padding: 24px 16px; display: grid; place-items: center; background: #000; color: var(--green); font: 16px/1.65 "Courier New", monospace; }
+    #rain { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: .38; }
+    main { width: min(100%, 700px); }
+    main { position: relative; z-index: 1; }
+    .terminal { width: min(100%, 700px); }
+    .status { color: var(--green); font-size: .9rem; }
+    h1 { color: var(--green); font-size: 1.6rem; font-weight: 400; }
+    .quote { padding: 12px 0; border-top: 1px dashed #555; border-bottom: 1px dashed #555; color: var(--green); }
+    .cursor { display: none; }
+  </style>
+</head>
+<body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <main>
+    <section class="terminal">
+      <p class="status">root@host:~# status: acesso liberado</p>
+      <h1>Mensagem decodificada.</h1>
+      <p class="quote">“Na natureza nada se cria, tudo se transforma.”</p>
+      <p>Mensagem decodificada. Vocês passaram para a próxima etapa do desafio!</p>
+      <p class="status">&gt; conexão encerrada<span class="cursor" aria-hidden="true"></span></p>
+    </section>
+  </main>
+  <script>
+    const canvas = document.querySelector("#rain");
+    const ctx = canvas.getContext("2d");
+    let columns = [];
+
+    function resizeRain() {
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(window.innerWidth * scale);
+      canvas.height = Math.floor(window.innerHeight * scale);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      columns = Array(Math.ceil(window.innerWidth / 15)).fill(0).map(() => ({
+        y: Math.random() * window.innerHeight,
+        speed: 2 + Math.random() * 4,
+        length: 12 + Math.floor(Math.random() * 22)
+      }));
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      ctx.font = "15px monospace";
+      columns.forEach((column, i) => {
+        for (let n = 0; n < column.length; n++) {
+          const y = column.y - n * 16;
+          if (y < 0 || y > window.innerHeight) continue;
+          ctx.fillStyle = n === 0 ? "#baffc4" : n < 5 ? "#43bd5a" : "#17632a";
+          ctx.fillText(Math.random() > 0.5 ? "1" : "0", i * 15, y);
+        }
+        column.y += column.speed;
+        if (column.y - column.length * 18 > window.innerHeight) {
+          column.y = -Math.random() * window.innerHeight * 0.5;
+          column.speed = 2 + Math.random() * 4;
+          column.length = 12 + Math.floor(Math.random() * 22);
+        }
+      });
+      requestAnimationFrame(drawRain);
+    }
+
+    window.addEventListener("resize", resizeRain);
+    resizeRain();
+    drawRain();
+  </script>
+</body>
+</html>

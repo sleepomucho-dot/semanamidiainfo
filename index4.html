@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Prompt de Comando — Missão concluída</title>
+  <style>
+    :root { color-scheme: dark; --text: #e6e6e6; --muted: #aaa; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; padding: 24px 16px; display: grid; place-items: center; background: #111; color: var(--text); font: 16px/1.6 Consolas, "Courier New", monospace; }
+    main { width: min(100%, 760px); }
+    .window { border: 1px solid #777; background: #000; box-shadow: 0 12px 35px #0009; }
+    .titlebar { padding: 5px 10px; background: #c0c0c0; color: #111; font: 14px/1.4 "Segoe UI", sans-serif; }
+    .screen { padding: clamp(18px, 5vw, 32px); }
+    .sys { color: #bdbdbd; }
+    .prompt { margin: 18px 0 8px; color: #fff; }
+    .output { min-height: 12em; margin: 0; color: #fff; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .caret { display: inline-block; width: .55em; height: 1em; margin-left: 3px; vertical-align: -.12em; background: #ddd; animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { to { visibility: hidden; } }
+    .again { display: inline-block; margin-top: 18px; padding: 8px 12px; border: 1px solid #aaa; color: #fff; text-decoration: none; }
+    .again:hover, .again:focus-visible { background: #303030; }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="window" aria-labelledby="title">
+      <div class="titlebar">Prompt de Comando — missão concluída</div>
+      <div class="screen">
+        <div class="sys">Microsoft Windows [Escape Room]</div>
+        <div class="sys">(c) Equipe de desenvolvimento. Todos os direitos reservados.</div>
+        <p class="prompt">C:\ESCAPE_ROOM&gt; mostrar-resultado</p>
+        <h1 id="title" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Parabéns, equipe! Missão concluída.</h1>
+        <pre class="output" id="output" aria-live="polite"></pre><span class="caret" aria-hidden="true"></span>
+        <a class="again" href="index.html">C:\ESCAPE_ROOM&gt; jogar-novamente</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    const message = "\nPARABÉNS, EQUIPE!\n\nVocês decifraram a mensagem, entenderam o código e chegaram até o fim — mesmo sem nunca terem programado.\n\nNo último desafio, o valor começou em 3, foi multiplicado por 2 e se transformou em 6. Programar é dar instruções e observar o resultado.\n\nMISSÃO CONCLUÍDA. BOM TRABALHO!";
+    const output = document.querySelector("#output");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let position = 0;
+
+    function typeMessage() {
+      if (reduceMotion) {
+        output.textContent = message;
+        return;
+      }
+      output.textContent = message.slice(0, position++);
+      if (position <= message.length) window.setTimeout(typeMessage, 24);
+    }
+    typeMessage();
+  </script>
+</body>
+</html>

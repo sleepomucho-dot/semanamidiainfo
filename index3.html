@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Prompt de Comando — Fase final</title>
+  <style>
+    :root { color-scheme: dark; --text: #e6e6e6; --muted: #aaa; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; padding: 24px 16px; display: grid; place-items: center; background: #111; color: var(--text); font: 16px/1.55 Consolas, "Courier New", monospace; }
+    main { width: min(100%, 760px); }
+    .window { border: 1px solid #777; background: #000; box-shadow: 0 12px 35px #0009; }
+    .titlebar { padding: 5px 10px; background: #c0c0c0; color: #111; font: 14px/1.4 "Segoe UI", sans-serif; }
+    .screen { padding: clamp(18px, 4vw, 28px); }
+    .sys { color: #bdbdbd; }
+    .prompt { color: #fff; }
+    h1 { margin: 18px 0 8px; font-size: 1.2rem; font-weight: 400; }
+    .typed { min-height: 3.1em; margin: 8px 0 16px; }
+    .caret { display: inline-block; width: .55em; height: 1em; margin-left: 3px; vertical-align: -.12em; background: #ddd; animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { to { visibility: hidden; } }
+    .code { margin: 16px 0; padding: 12px 0; color: #fff; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .hint { color: #aaa; }
+    form { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+    input { width: 110px; padding: 8px; border: 1px solid #aaa; border-radius: 0; background: #000; color: #fff; font: inherit; }
+    button { padding: 8px 14px; border: 1px solid #aaa; border-radius: 0; background: #000; color: #fff; font: inherit; cursor: pointer; }
+    button:hover, button:focus-visible { background: #303030; }
+    #feedback { min-height: 1.6em; }
+    .error { color: #ff9d9d; }
+    details { margin-top: 18px; padding-top: 12px; border-top: 1px solid #555; }
+    summary { width: fit-content; color: #bbb; cursor: pointer; }
+    @media (max-width: 460px) { form { align-items: stretch; flex-direction: column; } input, form button { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="window" aria-labelledby="title">
+      <div class="titlebar">Prompt de Comando — fase final</div>
+      <div class="screen">
+        <div class="sys">Microsoft Windows [Escape Room]</div>
+        <div class="sys">(c) Equipe de desenvolvimento. Todos os direitos reservados.</div>
+        <p class="prompt">C:\ESCAPE_ROOM&gt; iniciar-fase-final</p>
+        <h1 id="title">Último bloqueio</h1>
+        <p class="typed" id="typed-intro" aria-live="polite"></p>
+        <pre class="code">let valor = 3;
+valor = valor * 2;
+console.log(valor);</pre>
+        <p class="hint">Comece em 3. A segunda linha multiplica o valor por 2. O que aparece na tela?</p>
+        <form id="answer-form">
+          <label for="answer">C:\ESCAPE_ROOM&gt;</label>
+          <input id="answer" type="number" inputmode="numeric" autocomplete="off" required>
+          <button type="submit">Executar</button>
+        </form>
+        <p id="feedback" role="status" aria-live="polite"></p>
+        <details>
+          <summary>Mostrar solução</summary>
+          <p>O valor começa em 3. A instrução <code>valor = valor * 2</code> troca o valor por 3 × 2. O programa mostra <strong>6</strong>.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+  <script>
+    const intro = "A mensagem dizia que tudo se transforma. Leia as instruções abaixo e descubra o resultado.";
+    const introTarget = document.querySelector("#typed-intro");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let position = 0;
+
+    function typeIntro() {
+      if (reduceMotion) {
+        introTarget.textContent = intro;
+        return;
+      }
+      introTarget.textContent = intro.slice(0, position++);
+      if (position <= intro.length) window.setTimeout(typeIntro, 24);
+    }
+    typeIntro();
+
+    document.querySelector("#answer-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const feedback = document.querySelector("#feedback");
+      if (document.querySelector("#answer").value === "6") {
+        feedback.textContent = "C:\\ESCAPE_ROOM> resposta correta. abrindo mensagem...";
+        window.setTimeout(function () { window.location.href = "index4.html"; }, 700);
+      } else {
+        feedback.className = "error";
+        feedback.textContent = "C:\\ESCAPE_ROOM> valor incorreto. tente novamente.";
+      }
+    });
+  </script>
+</body>
+</html>

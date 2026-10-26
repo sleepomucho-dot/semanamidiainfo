@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>root@host:~</title>
+  <style>
+    :root { color-scheme: dark; --green: #00ff26; --muted: #718077; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; padding: 24px 16px; display: grid; place-items: center; background: #000; color: var(--green); font: 16px/1.55 "Courier New", monospace; }
+    #rain { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: .38; }
+    main { width: min(100%, 760px); }
+    main { position: relative; z-index: 1; }
+    .terminal { background: rgb(0 0 0 / 78%); }
+    .bar { padding: 8px 0; border-bottom: 1px solid #26332a; color: var(--muted); font-size: .9rem; }
+    .dot { display: none; }
+    .bar span { margin: 0; }
+    .screen { padding: 20px 0; }
+    .status { margin: 0; color: var(--green); font-size: .9rem; }
+    h1 { margin: 8px 0 20px; color: var(--green); font-size: 1.5rem; font-weight: 400; }
+    p { margin: 12px 0; }
+    .prompt { color: var(--green); }
+    .cipher { margin: 18px 0; padding: 12px 0; border-top: 1px dashed #555; border-bottom: 1px dashed #555; color: var(--green); font-size: clamp(.82rem, 2.8vw, 1.05rem); letter-spacing: .08em; line-height: 1.8; overflow-wrap: anywhere; }
+    .hint { color: var(--muted); }
+    form { display: flex; gap: 10px; margin-top: 22px; }
+    input { min-width: 0; flex: 1; padding: 10px; border: 1px solid #777; border-radius: 0; background: #000; color: var(--green); font: inherit; }
+    input:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+    button { padding: 10px 14px; border: 1px solid var(--green); border-radius: 0; background: #000; color: var(--green); font: inherit; cursor: pointer; }
+    button:hover { background: #102010; }
+    #feedback { min-height: 1.65em; color: var(--green); }
+    .error { color: #ff817d !important; }
+    details { margin-top: 20px; border-top: 1px solid #555; padding-top: 14px; }
+    summary { width: fit-content; color: var(--muted); cursor: pointer; opacity: 0%;}
+    .answer { color: var(--green); }
+    .cursor { display: none; }
+    @media (max-width: 520px) { form { flex-direction: column; } form button { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+  </style>
+</head>
+<body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <main>
+    <section class="terminal" aria-labelledby="title">
+      <div class="bar"><span>root@host:~# sessão remota</span></div>
+      <div class="screen">
+        <p class="status">[ ACESSO RESTRITO ]</p>
+        <h1 id="title">Mensagem interceptada</h1>
+        <p><span class="prompt">root@host:~$</span> Dados capturados. Cada grupo de 8 bits representa um caractere. Decodifique a mensagem para continuar.</p>
+        <div class="cipher" aria-label="Mensagem em código binário">01001110 01000001 00100000 01001110 01000001 01010100 01010101 01010010 01000101 01011010 01000001 00100000 01001110 01000001 01000100 01000001 00100000 01010011 01000101 00100000 01000011 01010010 01001001 01000001 00101100 00001010 TUDO SE TRANSFORMA</div>
+        <p class="hint">*Dica: cada grupo de 8 bits corresponde a um caractere. 00100000 representa um espaço.</p>
+        <p>Transcreva aqui o texto decodificado:</p>
+        <form id="answer-form">
+          <label for="answer" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Mensagem decodificada</label>
+          <input id="answer" type="text" autocomplete="off" placeholder="mensagem decodificada" required>
+          <button type="submit">&gt; VERIFICAR</button>
+        </form>
+        <p id="feedback" role="status" aria-live="polite"></p>
+        <details>
+          <summary>Mostrar solução</summary>
+          <p class="answer">NA NATUREZA NADA SE CRIA, TUDO SE TRANSFORMA</p>
+          <p>Leia cada grupo de 8 bits como um caractere. A mensagem diz: “Na natureza nada se cria, tudo se transforma”.</p>
+        </details>
+        <p class="status">&gt; aguardando entrada<span class="cursor" aria-hidden="true"></span></p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const canvas = document.querySelector("#rain");
+    const ctx = canvas.getContext("2d");
+    let columns = [];
+
+    function resizeRain() {
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(window.innerWidth * scale);
+      canvas.height = Math.floor(window.innerHeight * scale);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      columns = Array(Math.ceil(window.innerWidth / 15)).fill(0).map(() => ({
+        y: Math.random() * window.innerHeight,
+        speed: 2 + Math.random() * 4,
+        length: 12 + Math.floor(Math.random() * 22)
+      }));
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      ctx.font = "15px monospace";
+      columns.forEach((column, i) => {
+        for (let n = 0; n < column.length; n++) {
+          const y = column.y - n * 16;
+          if (y < 0 || y > window.innerHeight) continue;
+          ctx.fillStyle = n === 0 ? "#baffc4" : n < 5 ? "#43bd5a" : "#17632a";
+          ctx.fillText(Math.random() > 0.5 ? "1" : "0", i * 15, y);
+        }
+        column.y += column.speed;
+        if (column.y - column.length * 18 > window.innerHeight) {
+          column.y = -Math.random() * window.innerHeight * 0.5;
+          column.speed = 2 + Math.random() * 4;
+          column.length = 12 + Math.floor(Math.random() * 22);
+        }
+      });
+      requestAnimationFrame(drawRain);
+    }
+
+    window.addEventListener("resize", resizeRain);
+    resizeRain();
+    drawRain();
+
+    const form = document.querySelector("#answer-form");
+    const feedback = document.querySelector("#feedback");
+
+    function normalizar(texto) {
+      return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, "").toUpperCase();
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const resposta = normalizar(document.querySelector("#answer").value);
+      const correta = "NANATUREZANADASECRIA TUDOSETRANSFORMA";
+
+      if (resposta === normalizar(correta)) {
+        window.location.href = "index2.html";
+      } else {
+        feedback.textContent = "> DADOS INCORRETOS. Confira cada byte e tente novamente.";
+        feedback.classList.add("error");
+      }
+    });
+  </script>
+</body>
+</html>
